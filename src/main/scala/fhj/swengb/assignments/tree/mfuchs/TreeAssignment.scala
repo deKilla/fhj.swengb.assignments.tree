@@ -1,4 +1,4 @@
-package fhj.swengb.assignments.tree.rladstaetter
+package fhj.swengb.assignments.tree.mfuchs
 
 import javafx.scene.paint.Color
 
@@ -40,7 +40,10 @@ object Graph {
     * @return
     */
   def traverse[A, B](tree: Tree[A])(convert: A => B): Seq[B] = {
-  ???
+  tree match {
+    case Node(value) => Seq(convert(value))
+    case Branch(l,r) => ???
+    }
   }
 
   /**
@@ -78,7 +81,7 @@ object MathUtil {
     * @return
     */
   def round(value: Double): Double = {
-    ???
+    BigDecimal(value).setScale(3, BigDecimal.RoundingMode.HALF_UP).toDouble
   }
 
   /**
@@ -88,7 +91,7 @@ object MathUtil {
     * @return
     */
   def toRadiants(angle: AngleInDegrees): AngleInRadiants = {
-   ???
+    (angle*math.Pi)/180
   }
 }
 
@@ -108,7 +111,11 @@ object L2D {
     * @return
     */
   def apply(start: Pt2D, angle: AngleInDegrees, length: Double, color: Color): L2D = {
-    ???
+    val pointX = start.x + length * Math.cos(angle)
+    val pointY = start.y + length * Math.sin(angle)
+    val end = Pt2D(pointX,pointY)
+    val l2d = L2D(start,end,color)
+    return l2d
   }
 
 
