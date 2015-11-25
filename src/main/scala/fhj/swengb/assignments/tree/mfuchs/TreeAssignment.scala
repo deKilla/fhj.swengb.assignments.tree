@@ -2,12 +2,14 @@ package fhj.swengb.assignments.tree.mfuchs
 
 import javafx.scene.paint.Color
 
+import sun.security.util.Length
+
 import scala.math.BigDecimal.RoundingMode
 import scala.util.Random
 
 object Graph {
 
-  val colorscheme = "hell"
+  val colorscheme = "random"
   val colorMap:Map[Int,Color] = colorMap(colorscheme)
 
   def colorMap(colorscheme:String):Map[Int,Color] = {
@@ -37,8 +39,23 @@ object Graph {
         8 -> Color.NAVAJOWHITE
       )
 
+    def randomColor():Color = Color.rgb(Random.nextInt(255),Random.nextInt(255),Random.nextInt(255))
+    val colorMapRandom =
+      Map[Int, Color](
+        0 -> randomColor,
+        1 -> randomColor,
+        2 -> randomColor,
+        3 -> randomColor,
+        4 -> randomColor,
+        5 -> randomColor,
+        6 -> randomColor,
+        7 -> randomColor,
+        8 -> randomColor
+      )
+
     colorscheme match {
       case "hell" => colorMapHell
+      case "random" => colorMapRandom
       case _ => colorMapNature
     }
   }
@@ -90,17 +107,26 @@ object Graph {
               colorMap: Map[Int, Color] = Graph.colorMap): Tree[L2D] = {
     assert(treeDepth <= colorMap.size, s"Treedepth higher than color mappings - bailing out ...")
 
+
     def createGraph(start:L2D, acc: Int): Tree[L2D] = acc match {
 
       case root if treeDepth == 0 =>    Node(start)
 
-      case nodes if acc == treeDepth => Branch(Node(start),
-                                        Branch(Node(start.left(factor,angle,colorMap(acc-1))),
-                                        Node(start.right(factor,angle,colorMap(acc-1)))))
+      case nodes if acc == treeDepth => Branch(
+                                          Node(start),
+                                          Branch(
+                                            Node(start.left(factor,angle,colorMap(acc-1))),
+                                            Node(start.right(factor,angle,colorMap(acc-1)))
+                                          )
+                                        )
 
-      case _ =>                         Branch(Node(start),
-                                        Branch(createGraph(start.left(factor,angle,colorMap(acc-1)),acc+1),
-                                        createGraph(start.right(factor,angle,colorMap(acc-1)),acc+1)))
+      case _ =>                         Branch(
+                                          Node(start),
+                                          Branch(
+                                            createGraph(start.left(factor,angle,colorMap(acc-1)),acc+1),
+                                            createGraph(start.right(factor,angle,colorMap(acc-1)),acc+1)
+                                          )
+                                        )
     }
 
     val acc = 1
@@ -151,8 +177,8 @@ object L2D {
     * @return
     */
   def apply(start: Pt2D, angle: AngleInDegrees, length: Double, color: Color): L2D = {
-    val pointX = round(start.x + length * Math.cos(angle.toRadians))
-    val pointY = round(start.y + length * Math.sin(angle.toRadians))
+    val pointX = round(start.x + length * Math.cos(toRadiants(angle)))
+    val pointY = round(start.y + length * Math.sin(toRadiants(angle)))
     val end = Pt2D(pointX,pointY)
     val l2d = L2D(start,end,color)
     l2d
