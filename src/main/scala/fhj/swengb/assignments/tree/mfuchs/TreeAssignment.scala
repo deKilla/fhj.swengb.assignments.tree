@@ -7,19 +7,41 @@ import scala.util.Random
 
 object Graph {
 
-  val colorMap =
-    Map[Int, Color](
-      0 -> Color.ROSYBROWN,
-      1 -> Color.BROWN,
-      2 -> Color.SADDLEBROWN,
-      3 -> Color.INDIANRED,
-      4 -> Color.DARKGREEN,
-      5 -> Color.GREEN,
-      6 -> Color.YELLOWGREEN,
-      7 -> Color.GREENYELLOW,
-      8 -> Color.YELLOW
-    )
+  val colorscheme = "hell"
+  val colorMap:Map[Int,Color] = colorMap(colorscheme)
 
+  def colorMap(colorscheme:String):Map[Int,Color] = {
+    val colorMapNature =
+      Map[Int, Color](
+        0 -> Color.ROSYBROWN,
+        1 -> Color.BROWN,
+        2 -> Color.SADDLEBROWN,
+        3 -> Color.INDIANRED,
+        4 -> Color.DARKGREEN,
+        5 -> Color.GREEN,
+        6 -> Color.YELLOWGREEN,
+        7 -> Color.GREENYELLOW,
+        8 -> Color.YELLOW
+      )
+
+    val colorMapHell =
+      Map[Int, Color](
+        0 -> Color.BLACK,
+        1 -> Color.MAROON,
+        2 -> Color.FIREBRICK,
+        3 -> Color.BROWN,
+        4 -> Color.CRIMSON,
+        5 -> Color.ORANGERED,
+        6 -> Color.DARKORANGE,
+        7 -> Color.GOLD,
+        8 -> Color.NAVAJOWHITE
+      )
+
+    colorscheme match {
+      case "hell" => colorMapHell
+      case _ => colorMapNature
+    }
+  }
   /**
     * creates a random tree
     *
@@ -27,7 +49,7 @@ object Graph {
     * @return
     */
   def randomTree(pt: Pt2D): Tree[L2D] =
-    mkGraph(pt, Random.nextInt(360), Random.nextDouble() * 150, Random.nextInt(7))
+    mkGraph(pt, Random.nextInt(360), Random.nextDouble() * 150, 3 + Random.nextInt(6)) //depth minimum 3 and maximum increased to 9
 
 
   /**
@@ -40,9 +62,9 @@ object Graph {
     * @return
     */
   def traverse[A, B](tree: Tree[A])(convert: A => B): Seq[B] = {
-  tree match {
-    case Node(value) => Seq(convert(value))
-    case Branch(l,r) => traverse(l)(convert); traverse(r)(convert)
+    tree match {
+      case Node(value) => Seq(convert(value))
+      case Branch(left, right) => traverse(left)(convert) ++ traverse(right)(convert)
     }
   }
 
@@ -68,7 +90,23 @@ object Graph {
               colorMap: Map[Int, Color] = Graph.colorMap): Tree[L2D] = {
     assert(treeDepth <= colorMap.size, s"Treedepth higher than color mappings - bailing out ...")
 
+    def createGraph(start:L2D, acc: Int): Tree[L2D] = acc match {
 
+      case root if treeDepth == 0 =>    Node(start)
+
+      case nodes if acc == treeDepth => Branch(Node(start),
+                                        Branch(Node(start.left(factor,angle,colorMap(acc-1))),
+                                        Node(start.right(factor,angle,colorMap(acc-1)))))
+
+      case _ =>                         Branch(Node(start),
+                                        Branch(createGraph(start.left(factor,angle,colorMap(acc-1)),acc+1),
+                                        createGraph(start.right(factor,angle,colorMap(acc-1)),acc+1)))
+    }
+
+    val acc = 1
+    val p = L2D(start,initialAngle,length,colorMap(acc-1))
+
+    createGraph(p,acc)
 
  }
 
@@ -113,11 +151,11 @@ object L2D {
     * @return
     */
   def apply(start: Pt2D, angle: AngleInDegrees, length: Double, color: Color): L2D = {
-    val pointX = start.x + length * Math.cos(angle)
-    val pointY = start.y + length * Math.sin(angle)
+    val pointX = round(start.x + length * Math.cos(angle.toRadians))
+    val pointY = round(start.y + length * Math.sin(angle.toRadians))
     val end = Pt2D(pointX,pointY)
     val l2d = L2D(start,end,color)
-    return l2d
+    l2d
   }
 
 
