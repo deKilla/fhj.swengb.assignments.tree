@@ -9,7 +9,7 @@ import scala.util.Random
 
 object Graph {
 
-  val colorscheme = "nature" // nature, hell, random
+  val colorscheme = "random" // nature, hell, random
   val colorMap:Map[Int,Color] = colorMap(colorscheme)
 
   def colorMap(colorscheme:String):Map[Int,Color] = {
