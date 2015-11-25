@@ -92,8 +92,8 @@ class TreeAppController extends Initializable {
     l.setEffect(dropShadow)
     l.setOnMouseEntered(ev)
     l.setOnMouseExited(ev)
-    l.setSmooth(true)
-    l.setStrokeWidth(2)
+    //l.setSmooth(true)
+    //l.setStrokeWidth(2)
     l
   }
 
