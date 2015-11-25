@@ -9,7 +9,7 @@ import scala.util.Random
 
 object Graph {
 
-  val colorscheme = "random"
+  val colorscheme = "nature" // nature, hell, random
   val colorMap:Map[Int,Color] = colorMap(colorscheme)
 
   def colorMap(colorscheme:String):Map[Int,Color] = {
@@ -40,20 +40,10 @@ object Graph {
       )
 
     def randomColor():Color = Color.rgb(Random.nextInt(255),Random.nextInt(255),Random.nextInt(255))
-    val colorMapRandom =
-      Map[Int, Color](
-        0 -> randomColor,
-        1 -> randomColor,
-        2 -> randomColor,
-        3 -> randomColor,
-        4 -> randomColor,
-        5 -> randomColor,
-        6 -> randomColor,
-        7 -> randomColor,
-        8 -> randomColor
-      )
+    val colorMapRandom:Map[Int,Color] = (0 to 8).map(_ -> randomColor).toMap
 
     colorscheme match {
+      case "nature" => colorMapNature
       case "hell" => colorMapHell
       case "random" => colorMapRandom
       case _ => colorMapNature
@@ -108,31 +98,31 @@ object Graph {
     assert(treeDepth <= colorMap.size, s"Treedepth higher than color mappings - bailing out ...")
 
 
-    def createGraph(start:L2D, acc: Int): Tree[L2D] = acc match {
+    def mkTree(start:L2D, currentdepth: Int): Tree[L2D] = currentdepth match {
 
-      case root if treeDepth == 0 =>    Node(start)
+      case justroot if treeDepth == 0 =>    Node(start) //should never run because of minimum = 3 change
 
-      case nodes if acc == treeDepth => Branch(
+      case drawbranches if currentdepth == treeDepth => Branch(
                                           Node(start),
                                           Branch(
-                                            Node(start.left(factor,angle,colorMap(acc-1))),
-                                            Node(start.right(factor,angle,colorMap(acc-1)))
+                                            Node(start.left(factor,angle,colorMap(currentdepth-1))),
+                                            Node(start.right(factor,angle,colorMap(currentdepth-1)))
                                           )
                                         )
 
       case _ =>                         Branch(
                                           Node(start),
                                           Branch(
-                                            createGraph(start.left(factor,angle,colorMap(acc-1)),acc+1),
-                                            createGraph(start.right(factor,angle,colorMap(acc-1)),acc+1)
+                                            mkTree(start.left(factor,angle,colorMap(currentdepth-1)),currentdepth+1),
+                                            mkTree(start.right(factor,angle,colorMap(currentdepth-1)),currentdepth+1)
                                           )
                                         )
     }
 
-    val acc = 1
-    val p = L2D(start,initialAngle,length,colorMap(acc-1))
+    val initialdepth = 1
+    val startline = L2D(start,initialAngle,length,colorMap(0))
 
-    createGraph(p,acc)
+    mkTree(startline,initialdepth)
 
  }
 
